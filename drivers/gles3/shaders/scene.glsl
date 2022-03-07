@@ -1328,6 +1328,20 @@ vec4 fog_process(vec3 vertex) {
 	return vec4(fog_color, fog_amount);
 }
 
+#ifdef USE_DEBANDING
+// From https://alex.vlachos.com/graphics/Alex_Vlachos_Advanced_VR_Rendering_GDC2015.pdf
+// and https://www.shadertoy.com/view/MslGR8 (5th one starting from the bottom)
+// NOTE: `frag_coord` is in pixels (i.e. not normalized UV).
+vec3 interleaved_gradient_noise(vec2 frag_coord) {
+	// Iestyn's RGB dither (7 asm instructions) from Portal 2 X360, slightly modified for VR.
+	vec3 dither = vec3(dot(vec2(171.0, 231.0), frag_coord));
+	dither.rgb = fract(dither.rgb / vec3(103.0, 71.0, 97.0));
+
+	// Subtract 0.5 to avoid slightly brightening the whole viewport.
+	return (dither.rgb - 0.5) / 255.0;
+}
+#endif // USE_DEBANDING
+
 #ifndef DISABLE_REFLECTION_PROBE
 
 #define REFLECTION_AMBIENT_DISABLED 0
@@ -1931,6 +1945,11 @@ void main() {
 	frag_color.rgb = apply_tonemapping(frag_color.rgb, white);
 #endif
 	frag_color.rgb = linear_to_srgb(frag_color.rgb);
+
+
+#ifdef USE_DEBANDING
+	frag_color.rgb += interleaved_gradient_noise(gl_FragCoord.xy);
+#endif // USE_DEBANDING
 
 #else // !BASE_PASS
 	frag_color = vec4(0.0, 0.0, 0.0, alpha);
