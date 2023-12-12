@@ -233,6 +233,7 @@ ShaderTypes::ShaderTypes() {
 		shader_modes[RS::SHADER_SPATIAL].modes.push_back({ PNAME("fog_disabled") });
 		shader_modes[RS::SHADER_SPATIAL].modes.push_back({ PNAME("use_debanding") });
 		shader_modes[RS::SHADER_SPATIAL].modes.push_back({ PNAME("clearcoat_normal_map") });
+		shader_modes[RS::SHADER_SPATIAL].modes.push_back({ PNAME("specular_occlusion") });
 	}
 
 	/************ CANVAS ITEM **************************/
