@@ -52,6 +52,7 @@ public:
 
 	StringName free_; // "free", conflict with C++ keyword.
 	StringName changed;
+	StringName reloaded;
 	StringName script;
 	StringName script_changed;
 	StringName _iter_init;
