@@ -1239,6 +1239,41 @@ void Mutex::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("unlock"), &Mutex::unlock);
 }
 
+////// RecurisveRWLock //////
+
+void RecursiveRWLock::read_lock() const {
+	rwlock.read_lock();
+}
+
+bool RecursiveRWLock::read_try_lock() const {
+	return rwlock.read_try_lock();
+}
+
+void RecursiveRWLock::read_unlock() const {
+	rwlock.read_unlock();
+}
+
+void RecursiveRWLock::write_lock() {
+	rwlock.write_lock();
+}
+
+bool RecursiveRWLock::write_try_lock() {
+	return rwlock.write_try_lock();
+}
+
+void RecursiveRWLock::write_unlock() {
+	rwlock.write_unlock();
+}
+
+void RecursiveRWLock::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("read_lock"), &RecursiveRWLock::read_lock);
+	ClassDB::bind_method(D_METHOD("read_try_lock"), &RecursiveRWLock::read_try_lock);
+	ClassDB::bind_method(D_METHOD("read_unlock"), &RecursiveRWLock::read_unlock);
+	ClassDB::bind_method(D_METHOD("write_lock"), &RecursiveRWLock::write_lock);
+	ClassDB::bind_method(D_METHOD("write_try_lock"), &RecursiveRWLock::write_try_lock);
+	ClassDB::bind_method(D_METHOD("write_unlock"), &RecursiveRWLock::write_unlock);
+}
+
 ////// Thread //////
 
 void Thread::_start_func(void *ud) {

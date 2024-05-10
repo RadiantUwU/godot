@@ -385,6 +385,22 @@ public:
 	void unlock();
 };
 
+class RecursiveRWLock : public RefCounted {
+	GDCLASS(RecursiveRWLock, RefCounted);
+	::RecursiveRWLock rwlock;
+
+	static void _bind_methods();
+
+public:
+	void read_lock() const;
+	bool read_try_lock() const;
+	void read_unlock() const;
+
+	void write_lock();
+	bool write_try_lock();
+	void write_unlock();
+};
+
 class Semaphore : public RefCounted {
 	GDCLASS(Semaphore, RefCounted);
 	::Semaphore semaphore;
