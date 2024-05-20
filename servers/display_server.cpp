@@ -1012,6 +1012,10 @@ void DisplayServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("unregister_additional_output", "object"), &DisplayServer::unregister_additional_output);
 	ClassDB::bind_method(D_METHOD("has_additional_outputs"), &DisplayServer::has_additional_outputs);
 
+	ClassDB::bind_method(D_METHOD("simulate_mouse_click", "button", "modifiers", "pressed"), &DisplayServer::simulate_mouse_click);
+	ClassDB::bind_method(D_METHOD("simulate_keypress", "keycode", "modifiers", "pressed"), &DisplayServer::simulate_keypress);
+	ClassDB::bind_method(D_METHOD("simulate_unicode_input", "text"), &DisplayServer::simulate_unicode_input);
+
 #ifndef DISABLE_DEPRECATED
 	BIND_ENUM_CONSTANT(FEATURE_GLOBAL_MENU);
 #endif
@@ -1039,6 +1043,7 @@ void DisplayServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(FEATURE_NATIVE_HELP);
 	BIND_ENUM_CONSTANT(FEATURE_NATIVE_DIALOG_INPUT);
 	BIND_ENUM_CONSTANT(FEATURE_NATIVE_DIALOG_FILE);
+	BIND_ENUM_CONSTANT(FEATURE_INPUT_SIMULATION);
 
 	BIND_ENUM_CONSTANT(MOUSE_MODE_VISIBLE);
 	BIND_ENUM_CONSTANT(MOUSE_MODE_HIDDEN);
