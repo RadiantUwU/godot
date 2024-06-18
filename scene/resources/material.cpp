@@ -317,6 +317,115 @@ void ShaderMaterial::_get_property_list(List<PropertyInfo> *p_list) const {
 				// Check if the uniform Variant type changed, for example vec3 to vec4.
 				const Variant &cached = param_cache.get(E->get().name);
 
+				if (cached.get_type() == Variant::DICTIONARY) {
+					Variant default_value = RenderingServer::get_singleton()->shader_get_parameter_default(shader->get_rid(), E->get().name);
+					if (default_value.get_type() == Variant::DICTIONARY) {
+						const Dictionary &default_dict = (Dictionary)default_value;
+						Dictionary origin_dict = (Dictionary)cached;
+
+						List<Variant> origin_keys;
+						origin_dict.get_key_list(&origin_keys);
+						for (const Variant &key : origin_keys) {
+							if (!default_dict.has(key)) {
+								origin_dict.erase(key);
+							}
+						}
+
+						List<Variant> default_keys;
+						default_dict.get_key_list(&default_keys);
+						for (const Variant &key : default_keys) {
+							if (!origin_dict.has(key) || origin_dict[key].get_type() != default_dict[key].get_type()) {
+								origin_dict[key] = default_dict[key];
+							} else {
+								switch (origin_dict[key].get_type()) {
+									case Variant::PACKED_FLOAT32_ARRAY: {
+										const PackedFloat32Array &default_array = (PackedFloat32Array)default_dict[key];
+										const PackedFloat32Array &array = (PackedFloat32Array)origin_dict[key];
+
+										if (array.size() != default_array.size()) {
+											PackedFloat32Array new_arr;
+											new_arr.resize(default_array.size());
+
+											const float *r = array.ptr();
+											float *w = new_arr.ptrw();
+											for (int i = 0; i < default_array.size(); i++) {
+												if (i < array.size()) {
+													w[i] = r[i];
+												} else {
+													w[i] = 0.0f;
+												}
+											}
+											origin_dict[key] = new_arr;
+										}
+									} break;
+									case Variant::PACKED_INT32_ARRAY: {
+										const PackedInt32Array &default_array = (PackedInt32Array)default_dict[key];
+										const PackedInt32Array &array = (PackedInt32Array)origin_dict[key];
+
+										if (array.size() != default_array.size()) {
+											PackedInt32Array new_arr;
+											new_arr.resize(default_array.size());
+
+											const int *r = array.ptr();
+											int *w = new_arr.ptrw();
+											for (int i = 0; i < default_array.size(); i++) {
+												if (i < array.size()) {
+													w[i] = r[i];
+												} else {
+													w[i] = 0;
+												}
+											}
+											origin_dict[key] = new_arr;
+										}
+									} break;
+									case Variant::PACKED_VECTOR2_ARRAY: {
+										const PackedVector2Array &default_array = (PackedVector2Array)default_dict[key];
+										const PackedVector2Array &array = (PackedVector2Array)origin_dict[key];
+
+										if (array.size() != default_array.size()) {
+											PackedVector2Array new_arr;
+											new_arr.resize(default_array.size());
+
+											const Vector2 *r = array.ptr();
+											Vector2 *w = new_arr.ptrw();
+											for (int i = 0; i < default_array.size(); i++) {
+												if (i < array.size()) {
+													w[i] = r[i];
+												} else {
+													w[i] = Vector2();
+												}
+											}
+											origin_dict[key] = new_arr;
+										}
+									} break;
+									case Variant::PACKED_VECTOR3_ARRAY: {
+										const PackedVector3Array &default_array = (PackedVector3Array)default_dict[key];
+										const PackedVector3Array &array = (PackedVector3Array)origin_dict[key];
+
+										if (array.size() != default_array.size()) {
+											PackedVector3Array new_arr;
+											new_arr.resize(default_array.size());
+
+											const Vector3 *r = array.ptr();
+											Vector3 *w = new_arr.ptrw();
+											for (int i = 0; i < default_array.size(); i++) {
+												if (i < array.size()) {
+													w[i] = r[i];
+												} else {
+													w[i] = Vector3();
+												}
+											}
+											origin_dict[key] = new_arr;
+										}
+									} break;
+									default: {
+									} break;
+								}
+							}
+						}
+					}
+				}
+
 				if (cached.is_array()) {
 					// Allow some array conversions for backwards compatibility.
 					is_uniform_type_compatible = Variant::can_convert(E->get().type, cached.get_type());

@@ -566,6 +566,15 @@ void MaterialStorage::ShaderData::set_default_texture_parameter(const StringName
 Variant MaterialStorage::ShaderData::get_default_parameter(const StringName &p_parameter) const {
 	if (uniforms.has(p_parameter)) {
 		ShaderLanguage::ShaderNode::Uniform uniform = uniforms[p_parameter];
+
+		if (uniform.type == ShaderLanguage::TYPE_STRUCT) {
+			Dictionary dict;
+			for (const ShaderLanguage::ShaderNode::Uniform::Member &member : uniform.members) {
+				dict[member.name] = ShaderLanguage::get_default_datatype_value(member.type, member.array_size, ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
+			}
+			return dict;
+		}
+
 		Vector<ShaderLanguage::ConstantNode::Value> default_value = uniform.default_value;
 		return ShaderLanguage::constant_value_to_variant(default_value, uniform.type, uniform.array_size, uniform.hint);
 	}
@@ -687,6 +696,16 @@ void MaterialStorage::MaterialData::update_uniform_buffer(const HashMap<StringNa
 			if ((size % m) != 0U) {
 				size += m - (size % m);
 			}
+		} else if (E.value.type == ShaderLanguage::TYPE_STRUCT) {
+			for (const ShaderLanguage::ShaderNode::Uniform::Member &member : E.value.members) {
+				int array_size = MAX(1, member.array_size);
+				uint32_t member_size = ShaderLanguage::get_datatype_size(member.type) * array_size;
+				int m = (16 * array_size);
+				if ((member_size % m) != 0U) {
+					member_size += m - (member_size % m);
+				}
+				size += member_size;
+			}
 		} else {
 			size = ShaderLanguage::get_datatype_size(E.value.type);
 		}
@@ -696,22 +715,54 @@ void MaterialStorage::MaterialData::update_uniform_buffer(const HashMap<StringNa
 		HashMap<StringName, Variant>::ConstIterator V = p_parameters.find(E.key);
 
 		if (V) {
-			//user provided
-			_fill_std140_variant_ubo_value(E.value.type, E.value.array_size, V->value, data, p_use_linear_color);
+			// User provided.
+			if (E.value.type == ShaderLanguage::TYPE_STRUCT) {
+				Dictionary dict = (Dictionary)V->value;
 
-		} else if (E.value.default_value.size()) {
-			//default value
-			_fill_std140_ubo_value(E.value.type, E.value.default_value, data);
-			//value=E.value.default_value;
-		} else {
-			//zero because it was not provided
-			if ((E.value.type == ShaderLanguage::TYPE_VEC3 || E.value.type == ShaderLanguage::TYPE_VEC4) && E.value.hint == ShaderLanguage::ShaderNode::Uniform::HINT_SOURCE_COLOR) {
-				//colors must be set as black, with alpha as 1.0
-				_fill_std140_variant_ubo_value(E.value.type, E.value.array_size, Color(0, 0, 0, 1), data, p_use_linear_color);
+				uint32_t sub_offset = 0U;
+				for (const ShaderLanguage::ShaderNode::Uniform::Member &member : E.value.members) {
+					if (dict.has(member.name)) {
+						_fill_std140_variant_ubo_value(member.type, member.array_size, dict[member.name], &data[sub_offset], p_use_linear_color);
+					} else {
+						_fill_std140_ubo_empty(member.type, member.array_size, &data[sub_offset]);
+					}
+
+					// The following code enforces a 16-byte alignment of struct member.
+					int array_size = MAX(1, member.array_size);
+					uint32_t size2 = ShaderLanguage::get_datatype_size(member.type) * array_size;
+					int m = (16 * array_size);
+					if ((size2 % m) != 0) {
+						size2 += m - (size2 % m);
+					}
+					sub_offset += size2;
+				}
 			} else {
-				//else just zero it out
-				_fill_std140_ubo_empty(E.value.type, E.value.array_size, data);
+				_fill_std140_variant_ubo_value(E.value.type, E.value.array_size, V->value, data, p_use_linear_color);
 			}
+		} else if (E.value.default_value.size()) {
+			// Default value.
+			_fill_std140_ubo_value(E.value.type, E.value.default_value, data);
+		} else if (E.value.type == ShaderLanguage::TYPE_STRUCT) {
+			// Zero because it was not provided.
+			uint32_t sub_offset = 0U;
+			for (const ShaderLanguage::ShaderNode::Uniform::Member &member : E.value.members) {
+				_fill_std140_ubo_empty(member.type, member.array_size, &data[sub_offset]);
+
+				// The following code enforces a 16-byte alignment of struct member.
+				int array_size = MAX(1, member.array_size);
+				uint32_t size2 = ShaderLanguage::get_datatype_size(member.type) * array_size;
+				int m = (16 * array_size);
+				if ((size2 % m) != 0) {
+					size2 += m - (size2 % m);
+				}
+				sub_offset += size2;
+			}
+		} else if ((E.value.type == ShaderLanguage::TYPE_VEC3 || E.value.type == ShaderLanguage::TYPE_VEC4) && E.value.hint == ShaderLanguage::ShaderNode::Uniform::HINT_SOURCE_COLOR) {
+			// Colors must be set as black, with alpha as 1.0.
+			_fill_std140_variant_ubo_value(E.value.type, E.value.array_size, Color(0, 0, 0, 1), data, p_use_linear_color);
+		} else {
+			// Otherwise, just zero it out.
+			_fill_std140_ubo_empty(E.value.type, E.value.array_size, data);
 		}
 	}
 

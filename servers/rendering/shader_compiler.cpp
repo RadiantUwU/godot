@@ -479,6 +479,7 @@ String ShaderCompiler::_dump_node_code(const SL::Node *p_node, int p_level, Gene
 				struct_code += _mkid(pnode->vstructs[i].name);
 				struct_code += " ";
 				struct_code += "{\n";
+
 				for (SL::MemberNode *m : st->members) {
 					if (m->datatype == SL::TYPE_STRUCT) {
 						struct_code += _mkid(m->struct_name);
@@ -499,7 +500,7 @@ String ShaderCompiler::_dump_node_code(const SL::Node *p_node, int p_level, Gene
 				struct_code += ";\n";
 
 				for (int j = 0; j < STAGE_MAX; j++) {
-					r_gen_code.stage_globals[j] += struct_code;
+					r_gen_code.stage_structs[j] += struct_code;
 				}
 			}
 
@@ -572,6 +573,8 @@ String ShaderCompiler::_dump_node_code(const SL::Node *p_node, int p_level, Gene
 				if (is_buffer_global) {
 					//this is an integer to index the global table
 					ucode += _typestr(ShaderLanguage::TYPE_UINT);
+				} else if (uniform.type == ShaderLanguage::TYPE_STRUCT) {
+					ucode += _mkid(uniform.struct_name);
 				} else {
 					ucode += _prestr(uniform.precision, ShaderLanguage::is_float_type(uniform.type));
 					ucode += _typestr(uniform.type);
@@ -622,6 +625,21 @@ String ShaderCompiler::_dump_node_code(const SL::Node *p_node, int p_level, Gene
 							}
 							uniform_sizes.write[uniform.order] = size;
 							uniform_alignments.write[uniform.order] = 16;
+						} else if (uniform.type == ShaderLanguage::TYPE_STRUCT) {
+							int size = 0;
+							int alignment = 0;
+							for (const ShaderLanguage::ShaderNode::Uniform::Member &member : uniform.members) {
+								int array_size = MAX(1, member.array_size);
+								int size2 = ShaderLanguage::get_datatype_size(member.type) * array_size;
+								int m = (16 * array_size);
+								if ((size2 % m) != 0) {
+									size2 += m - (size2 % m);
+								}
+								size += size2;
+								alignment += 16;
+							}
+							uniform_sizes.write[uniform.order] = size;
+							uniform_alignments.write[uniform.order] = alignment;
 						} else {
 							uniform_sizes.write[uniform.order] = ShaderLanguage::get_datatype_size(uniform.type);
 							uniform_alignments.write[uniform.order] = _get_datatype_alignment(uniform.type);
@@ -1542,6 +1560,7 @@ Error ShaderCompiler::compile(RS::ShaderMode p_mode, const String &p_code, Ident
 	r_gen_code.code.clear();
 	for (int i = 0; i < STAGE_MAX; i++) {
 		r_gen_code.stage_globals[i] = String();
+		r_gen_code.stage_structs[i] = String();
 	}
 	r_gen_code.uses_fragment_time = false;
 	r_gen_code.uses_vertex_time = false;
