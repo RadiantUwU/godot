@@ -6,16 +6,15 @@ import subprocess
 import sys
 import urllib.request
 
-# Enable ANSI escape code support on Windows 10 and later (for colored console output).
-# <https://github.com/python/cpython/issues/73245>
-if sys.platform == "win32":
-    from ctypes import byref, c_int, windll
+try:
+    from misc.utility.colorize import Ansi  # noqa: F401
+except ImportError:
+    root_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
+    sys.path.append(root_directory)
 
-    stdout_handle = windll.kernel32.GetStdHandle(c_int(-11))
-    mode = c_int(0)
-    windll.kernel32.GetConsoleMode(c_int(stdout_handle), byref(mode))
-    mode = c_int(mode.value | 4)
-    windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
+    from misc.utility.colorize import Ansi  # noqa: F401
+
+    sys.path.remove(root_directory)
 
 # Base Godot dependencies path
 # If cross-compiling (no LOCALAPPDATA), we install in `bin`
@@ -48,8 +47,25 @@ agility_sdk_folder = os.path.join(deps_folder, "agility_sdk")
 if not os.path.exists(deps_folder):
     os.makedirs(deps_folder)
 
+# DirectX Shader Compiler
+print(f"{Ansi.BOLD}[1/4] DirectX Shader Compiler{Ansi.RESET}")
+if os.path.isfile(dxc_archive):
+    os.remove(dxc_archive)
+print(f"Downloading DirectX Shader Compiler {dxc_filename} ...")
+urllib.request.urlretrieve(
+    f"https://github.com/microsoft/DirectXShaderCompiler/releases/download/{dxc_version}/{dxc_filename}",
+    dxc_archive,
+)
+if os.path.exists(dxc_folder):
+    print(f"Removing existing local DirectX Shader Compiler installation in {dxc_folder} ...")
+    shutil.rmtree(dxc_folder)
+print(f"Extracting DirectX Shader Compiler {dxc_filename} to {dxc_folder} ...")
+shutil.unpack_archive(dxc_archive, dxc_folder)
+os.remove(dxc_archive)
+print(f"DirectX Shader Compiler {dxc_filename} installed successfully.\n")
+
 # Mesa NIR
-print("\x1b[1m[1/3] Mesa NIR\x1b[0m")
+print(f"{Ansi.BOLD}[2/4] Mesa NIR{Ansi.RESET}")
 if os.path.isfile(mesa_archive):
     os.remove(mesa_archive)
 print(f"Downloading Mesa NIR {mesa_filename} ...")
@@ -76,7 +92,7 @@ if dlltool == "":
     dlltool = shutil.which("x86_64-w64-mingw32-dlltool") or ""
 has_mingw = gendef != "" and dlltool != ""
 
-print("\x1b[1m[2/3] WinPixEventRuntime\x1b[0m")
+print(f"{Ansi.BOLD}[2/3] WinPixEventRuntime{Ansi.RESET}")
 if os.path.isfile(pix_archive):
     os.remove(pix_archive)
 print(f"Downloading WinPixEventRuntime {pix_version} ...")
@@ -107,7 +123,7 @@ else:
 print(f"WinPixEventRuntime {pix_version} installed successfully.\n")
 
 # DirectX 12 Agility SDK
-print("\x1b[1m[3/3] DirectX 12 Agility SDK\x1b[0m")
+print(f"{Ansi.BOLD}[3/3] DirectX 12 Agility SDK{Ansi.RESET}")
 if os.path.isfile(agility_sdk_archive):
     os.remove(agility_sdk_archive)
 print(f"Downloading DirectX 12 Agility SDK {agility_sdk_version} ...")
@@ -123,5 +139,5 @@ os.remove(agility_sdk_archive)
 print(f"DirectX 12 Agility SDK {agility_sdk_version} installed successfully.\n")
 
 # Complete message
-print(f'\x1b[92mAll Direct3D 12 SDK components were installed to "{deps_folder}" successfully!\x1b[0m')
-print('\x1b[92mYou can now build Godot with Direct3D 12 support enabled by running "scons d3d12=yes".\x1b[0m')
+print(f'{Ansi.GREEN}All Direct3D 12 SDK components were installed to "{deps_folder}" successfully!{Ansi.RESET}')
+print(f'{Ansi.GREEN}You can now build Godot with Direct3D 12 support enabled by running "scons d3d12=yes".{Ansi.RESET}')
