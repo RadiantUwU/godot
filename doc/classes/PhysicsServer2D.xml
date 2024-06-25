@@ -950,7 +950,7 @@
 				Creates a 2D space in the physics server, and returns the [RID] that identifies it. A space contains bodies and areas, and controls the stepping of the physics simulation of the objects in it.
 			</description>
 		</method>
-		<method name="space_flush_queries" is_experimental="true">
+		<method name="space_flush_queries" experimental="">
 			<return type="void" />
 			<param index="0" name="space" type="RID" />
 			<description>
@@ -964,7 +964,7 @@
 				Returns the state of a space, a [PhysicsDirectSpaceState2D]. This object can be used for collision/intersection queries.
 			</description>
 		</method>
-		<method name="space_get_last_process_info" is_experimental="true">
+		<method name="space_get_last_process_info" experimental="">
 			<return type="int" />
 			<param index="0" name="space" type="RID" />
 			<param index="1" name="process_info" type="int" enum="PhysicsServer2D.ProcessInfo" />
@@ -1004,7 +1004,7 @@
 				Sets the value of the given space parameter. See [enum SpaceParameter] for the list of available parameters.
 			</description>
 		</method>
-		<method name="space_step" is_experimental="true">
+		<method name="space_step" experimental="">
 			<return type="void" />
 			<param index="0" name="space" type="RID" />
 			<param index="1" name="delta" type="float" />
