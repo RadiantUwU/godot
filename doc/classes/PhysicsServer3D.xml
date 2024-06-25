@@ -1314,7 +1314,7 @@
 				Creates a space. A space is a collection of parameters for the physics engine that can be assigned to an area or a body. It can be assigned to an area with [method area_set_space], or to a body with [method body_set_space].
 			</description>
 		</method>
-		<method name="space_flush_queries" is_experimental="true">
+		<method name="space_flush_queries" experimental="">
 			<return type="void" />
 			<param index="0" name="space" type="RID" />
 			<description>
@@ -1328,7 +1328,7 @@
 				Returns the state of a space, a [PhysicsDirectSpaceState3D]. This object can be used to make collision/intersection queries.
 			</description>
 		</method>
-		<method name="space_get_last_process_info" is_experimental="true">
+		<method name="space_get_last_process_info" experimental="">
 			<return type="int" />
 			<param index="0" name="space" type="RID" />
 			<param index="1" name="process_info" type="int" enum="PhysicsServer3D.ProcessInfo" />
@@ -1368,7 +1368,7 @@
 				Sets the value for a space parameter. A list of available parameters is on the [enum SpaceParameter] constants.
 			</description>
 		</method>
-		<method name="space_step" is_experimental="true">
+		<method name="space_step" experimental="">
 			<return type="void" />
 			<param index="0" name="space" type="RID" />
 			<param index="1" name="delta" type="float" />
