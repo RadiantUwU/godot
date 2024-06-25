@@ -1,5 +1,5 @@
-short_name = "godot_radiant_fork"
-name = "Godot Engine (Radiant fork)"
+short_name = "godot"
+name = "Godot Engine - Radiant Fork"
 major = 4
 minor = 3
 patch = 0
