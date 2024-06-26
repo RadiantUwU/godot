@@ -4,6 +4,6 @@ major = 4
 minor = 3
 patch = 0
 status = "beta"
-module_config = ""
+module_config = ".radiant_fork"
 website = "https://godotengine.org"
 docs = "latest"
