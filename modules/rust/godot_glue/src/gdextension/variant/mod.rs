@@ -28,8 +28,5 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-pub(self) mod bindings;
-pub(self) mod core;
-pub(self) mod interface;
 mod variant;
-pub use variant::Variant;
+pub type Variant = variant::Variant;
