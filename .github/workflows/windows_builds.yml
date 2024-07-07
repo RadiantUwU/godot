@@ -30,6 +30,15 @@ jobs:
             # Skip debug symbols, they're way too big with MSVC.
             sconsflags: debug_symbols=no vsproj=yes vsproj_gen_only=no windows_subsystem=console
             bin: "./bin/godot.windows.editor.x86_64.exe"
+          
+          - name: Editor Mono (target=editor, tests=yes)
+            cache-name: windows-editor-mono
+            target: editor
+            build-mono: true
+            tests: true
+            # Skip debug symbols, they're way too big with MSVC.
+            sconsflags: debug_symbols=no vsproj=yes vsproj_gen_only=no windows_subsystem=console module_mono_enabled=yes
+            bin: "./bin/godot.windows.editor.x86_64.exe"
 
           - name: Template (target=template_release)
             cache-name: windows-template
@@ -82,6 +91,16 @@ jobs:
         with:
           cache-name: ${{ matrix.cache-name }}
         continue-on-error: true
+
+      - name: Generate C# glue
+        if: ${{ matrix.build-mono }}
+        run: |
+          ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue
+
+      - name: Build .NET solutions
+        if: ${{ matrix.build-mono }}
+        run: |
+          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=windows
 
       - name: Prepare artifact
         run: |
