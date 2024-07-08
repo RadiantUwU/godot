@@ -38,6 +38,18 @@ jobs:
             tests: false
             sconsflags: arch=arm64
 
+          - name: Template arm32 (target=template_debug, arch=arm32)
+            cache-name: android-template-arm32-debug
+            target: template_debug
+            tests: false
+            sconsflags: arch=arm32
+
+          - name: Template arm64 (target=template_debug, arch=arm64)
+            cache-name: android-template-arm64-debug
+            target: template_debug
+            tests: false
+            sconsflags: arch=arm64
+
     steps:
       - uses: actions/checkout@v4
         with:

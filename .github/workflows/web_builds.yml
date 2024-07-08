@@ -36,6 +36,20 @@ jobs:
             tests: false
             artifact: true
 
+          - name: Template w/ threads (target=template_debug, threads=yes)
+            cache-name: web-template-debug
+            target: template_debug
+            sconsflags: threads=yes
+            tests: false
+            artifact: true
+
+          - name: Template w/o threads (target=template_debug, threads=no)
+            cache-name: web-nothreads-template-debug
+            target: template_debug
+            sconsflags: threads=no
+            tests: false
+            artifact: true
+
     steps:
       - uses: actions/checkout@v4
         with:
