@@ -200,6 +200,9 @@ void Variant::_register_variant_constructors() {
 	add_constructor<VariantConstructor<Dictionary, Dictionary>>(sarray("from"));
 	add_constructor<VariantConstructorTypedDictionary>(sarray("base", "key_type", "key_class_name", "key_script", "value_type", "value_class_name", "value_script"));
 
+	add_constructor<VariantConstructNoArgs<Set>>(sarray());
+	add_constructor<VariantConstructor<Set, Set>>(sarray("from"));
+
 	add_constructor<VariantConstructNoArgs<Array>>(sarray());
 	add_constructor<VariantConstructor<Array, Array>>(sarray("from"));
 	add_constructor<VariantConstructorTypedArray>(sarray("base", "type", "class_name", "script"));
