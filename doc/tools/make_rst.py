@@ -132,6 +132,7 @@ CLASSES_WITH_CSHARP_DIFFERENCES: List[str] = [
     "Color",
     "Array",
     "Dictionary",
+    "Set",
     "PackedByteArray",
     "PackedColorArray",
     "PackedFloat32Array",

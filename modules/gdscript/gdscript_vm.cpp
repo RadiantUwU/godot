@@ -229,6 +229,7 @@ void (*type_init_function_table[])(Variant *) = {
 	&VariantInitializer<PackedVector3Array>::init, // PACKED_VECTOR3_ARRAY.
 	&VariantInitializer<PackedColorArray>::init, // PACKED_COLOR_ARRAY.
 	&VariantInitializer<PackedVector4Array>::init, // PACKED_VECTOR4_ARRAY.
+	&VariantInitializer<Set>::init, // SET.
 };
 
 #if defined(__GNUC__)
@@ -273,6 +274,7 @@ void (*type_init_function_table[])(Variant *) = {
 		&&OPCODE_CONSTRUCT_TYPED_ARRAY,                  \
 		&&OPCODE_CONSTRUCT_DICTIONARY,                   \
 		&&OPCODE_CONSTRUCT_TYPED_DICTIONARY,             \
+		&&OPCODE_CONSTRUCT_SET,                          \
 		&&OPCODE_CALL,                                   \
 		&&OPCODE_CALL_RETURN,                            \
 		&&OPCODE_CALL_ASYNC,                             \
@@ -313,6 +315,7 @@ void (*type_init_function_table[])(Variant *) = {
 		&&OPCODE_ITERATE_BEGIN_VECTOR3I,                 \
 		&&OPCODE_ITERATE_BEGIN_STRING,                   \
 		&&OPCODE_ITERATE_BEGIN_DICTIONARY,               \
+		&&OPCODE_ITERATE_BEGIN_SET,                      \
 		&&OPCODE_ITERATE_BEGIN_ARRAY,                    \
 		&&OPCODE_ITERATE_BEGIN_PACKED_BYTE_ARRAY,        \
 		&&OPCODE_ITERATE_BEGIN_PACKED_INT32_ARRAY,       \
@@ -334,6 +337,7 @@ void (*type_init_function_table[])(Variant *) = {
 		&&OPCODE_ITERATE_VECTOR3I,                       \
 		&&OPCODE_ITERATE_STRING,                         \
 		&&OPCODE_ITERATE_DICTIONARY,                     \
+		&&OPCODE_ITERATE_SET,                            \
 		&&OPCODE_ITERATE_ARRAY,                          \
 		&&OPCODE_ITERATE_PACKED_BYTE_ARRAY,              \
 		&&OPCODE_ITERATE_PACKED_INT32_ARRAY,             \
@@ -376,6 +380,7 @@ void (*type_init_function_table[])(Variant *) = {
 		&&OPCODE_TYPE_ADJUST_CALLABLE,                   \
 		&&OPCODE_TYPE_ADJUST_SIGNAL,                     \
 		&&OPCODE_TYPE_ADJUST_DICTIONARY,                 \
+		&&OPCODE_TYPE_ADJUST_SET,                        \
 		&&OPCODE_TYPE_ADJUST_ARRAY,                      \
 		&&OPCODE_TYPE_ADJUST_PACKED_BYTE_ARRAY,          \
 		&&OPCODE_TYPE_ADJUST_PACKED_INT32_ARRAY,         \
@@ -450,6 +455,7 @@ void (*type_init_function_table[])(Variant *) = {
 #define OP_GET_SIGNAL get_signal
 #define OP_GET_ARRAY get_array
 #define OP_GET_DICTIONARY get_dictionary
+#define OP_GET_SET get_set
 #define OP_GET_PACKED_BYTE_ARRAY get_byte_array
 #define OP_GET_PACKED_INT32_ARRAY get_int32_array
 #define OP_GET_PACKED_INT64_ARRAY get_int64_array
@@ -1863,6 +1869,26 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 			DISPATCH_OPCODE;
 
+			OPCODE(OPCODE_CONSTRUCT_SET) {
+				LOAD_INSTRUCTION_ARGS
+				CHECK_SPACE(1 + instr_arg_count);
+				ip += instr_arg_count;
+
+				int argc = _code_ptr[ip + 1];
+				Set set;
+
+				for (int i = 0; i < argc; i++) {
+					set.add(*(instruction_args[i]));
+				}
+
+				GET_INSTRUCTION_ARG(dst, argc);
+
+				*dst = set;
+
+				ip += 2;
+			}
+			DISPATCH_OPCODE;
+
 			OPCODE(OPCODE_CALL_ASYNC)
 			OPCODE(OPCODE_CALL_RETURN)
 			OPCODE(OPCODE_CALL) {
@@ -3216,6 +3242,31 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 			DISPATCH_OPCODE;
 
+			OPCODE(OPCODE_ITERATE_BEGIN_SET) {
+				CHECK_SPACE(8); // Check space for iterate instruction too.
+
+				GET_VARIANT_PTR(counter, 0);
+				GET_VARIANT_PTR(container, 1);
+
+				Set *set = VariantInternal::get_set(container);
+				const Variant *next = set->next(nullptr);
+
+				if (!set->is_empty()) {
+					GET_VARIANT_PTR(iterator, 2);
+					*counter = *next;
+					*iterator = *next;
+
+					// Skip regular iterate.
+					ip += 5;
+				} else {
+					// Jump to end of loop.
+					int jumpto = _code_ptr[ip + 4];
+					GD_ERR_BREAK(jumpto < 0 || jumpto > _code_size);
+					ip = jumpto;
+				}
+			}
+			DISPATCH_OPCODE;
+
 			OPCODE(OPCODE_ITERATE_BEGIN_ARRAY) {
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
@@ -3557,6 +3608,29 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 			DISPATCH_OPCODE;
 
+			OPCODE(OPCODE_ITERATE_SET) {
+				CHECK_SPACE(4);
+
+				GET_VARIANT_PTR(counter, 0);
+				GET_VARIANT_PTR(container, 1);
+
+				const Set *set = VariantInternal::get_set((const Variant *)container);
+				const Variant *next = set->next(counter);
+
+				if (!next) {
+					int jumpto = _code_ptr[ip + 4];
+					GD_ERR_BREAK(jumpto < 0 || jumpto > _code_size);
+					ip = jumpto;
+				} else {
+					GET_VARIANT_PTR(iterator, 2);
+					*counter = *next;
+					*iterator = *next;
+
+					ip += 5; // Loop again.
+				}
+			}
+			DISPATCH_OPCODE;
+
 			OPCODE(OPCODE_ITERATE_ARRAY) {
 				CHECK_SPACE(4);
 
@@ -3746,6 +3820,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			OPCODE_TYPE_ADJUST(CALLABLE, Callable);
 			OPCODE_TYPE_ADJUST(SIGNAL, Signal);
 			OPCODE_TYPE_ADJUST(DICTIONARY, Dictionary);
+			OPCODE_TYPE_ADJUST(SET, Set);
 			OPCODE_TYPE_ADJUST(ARRAY, Array);
 			OPCODE_TYPE_ADJUST(PACKED_BYTE_ARRAY, PackedByteArray);
 			OPCODE_TYPE_ADJUST(PACKED_INT32_ARRAY, PackedInt32Array);
