@@ -1,9 +1,9 @@
 short_name = "godot"
-name = "Godot Engine"
+name = "Godot Engine - Radiant Fork"
 major = 4
 minor = 3
 patch = 0
 status = "stable"
-module_config = ""
+module_config = ".radiant_fork"
 website = "https://godotengine.org"
 docs = "4.3"
