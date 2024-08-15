@@ -253,6 +253,7 @@ bool arg_default_value_is_assignable_to_type(const Context &p_context, const Var
 		case Variant::RID:
 		case Variant::ARRAY:
 		case Variant::DICTIONARY:
+		case Variant::SET:
 		case Variant::PACKED_BYTE_ARRAY:
 		case Variant::PACKED_INT32_ARRAY:
 		case Variant::PACKED_INT64_ARRAY:
