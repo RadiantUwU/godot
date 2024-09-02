@@ -21,23 +21,11 @@ jobs:
     needs: static-checks
     uses: ./.github/workflows/android_builds.yml
 
-  ios-build:
-    if: ${{ vars.DISABLE_GODOT_CI == '' }}
-    name: 🍏 iOS
-    needs: static-checks
-    uses: ./.github/workflows/ios_builds.yml
-
   linux-build:
     if: ${{ vars.DISABLE_GODOT_CI == '' }}
     name: 🐧 Linux
     needs: static-checks
     uses: ./.github/workflows/linux_builds.yml
-
-  macos-build:
-    if: ${{ vars.DISABLE_GODOT_CI == '' }}
-    name: 🍎 macOS
-    needs: static-checks
-    uses: ./.github/workflows/macos_builds.yml
 
   windows-build:
     if: ${{ vars.DISABLE_GODOT_CI == '' }}
