@@ -589,7 +589,7 @@ void RenderSceneBuffersRD::allocate_blur_textures() {
 // Data buffers
 
 bool RenderSceneBuffersRD::has_custom_data(const StringName &p_name) {
-	return data_buffers.has(p_name);
+	return data_buffers.has(p_name) && data_buffers[p_name].is_valid();
 }
 
 void RenderSceneBuffersRD::set_custom_data(const StringName &p_name, Ref<RenderBufferCustomDataRD> p_data) {

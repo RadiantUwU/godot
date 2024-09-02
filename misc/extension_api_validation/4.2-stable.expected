@@ -394,3 +394,59 @@ GH-93982
 Validate extension JSON: Error: Field 'classes/Sprite3D/properties/frame_coords': type changed value in new API, from "Vector2" to "Vector2i".
 
 The type was wrong to begin with and has been corrected. Vector2 and Vector2i are convertible, so it should be compatible.
+
+
+GH-HDDAGI
+--------
+Validate extension JSON: API was removed: classes/Environment/enums/SDFGIYScale
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_bounce_feedback
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_cascade0_distance
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_cascades
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_energy
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_max_distance
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_min_cell_size
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_normal_bias
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_probe_bias
+Validate extension JSON: API was removed: classes/Environment/methods/get_sdfgi_y_scale
+Validate extension JSON: API was removed: classes/Environment/methods/is_sdfgi_enabled
+Validate extension JSON: API was removed: classes/Environment/methods/is_sdfgi_reading_sky_light
+Validate extension JSON: API was removed: classes/Environment/methods/is_sdfgi_using_occlusion
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_bounce_feedback
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_cascade0_distance
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_cascades
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_enabled
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_energy
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_max_distance
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_min_cell_size
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_normal_bias
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_probe_bias
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_read_sky_light
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_use_occlusion
+Validate extension JSON: API was removed: classes/Environment/methods/set_sdfgi_y_scale
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_bounce_feedback
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_cascade0_distance
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_cascades
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_enabled
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_energy
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_max_distance
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_min_cell_size
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_normal_bias
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_probe_bias
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_read_sky_light
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_use_occlusion
+Validate extension JSON: API was removed: classes/Environment/properties/sdfgi_y_scale
+Validate extension JSON: API was removed: classes/RenderingServer/enums/EnvironmentSDFGIFramesToConverge
+Validate extension JSON: API was removed: classes/RenderingServer/enums/EnvironmentSDFGIFramesToUpdateLight
+Validate extension JSON: API was removed: classes/RenderingServer/enums/EnvironmentSDFGIRayCount
+Validate extension JSON: API was removed: classes/RenderingServer/enums/EnvironmentSDFGIYScale
+Validate extension JSON: API was removed: classes/RenderingServer/enums/ViewportDebugDraw/values/VIEWPORT_DEBUG_DRAW_SDFGI
+Validate extension JSON: API was removed: classes/RenderingServer/enums/ViewportDebugDraw/values/VIEWPORT_DEBUG_DRAW_SDFGI_PROBES
+Validate extension JSON: API was removed: classes/RenderingServer/methods/environment_set_sdfgi
+Validate extension JSON: API was removed: classes/RenderingServer/methods/environment_set_sdfgi_frames_to_converge
+Validate extension JSON: API was removed: classes/RenderingServer/methods/environment_set_sdfgi_frames_to_update_light
+Validate extension JSON: API was removed: classes/RenderingServer/methods/environment_set_sdfgi_ray_count
+Validate extension JSON: API was removed: classes/RenderingServer/methods/light_set_max_sdfgi_cascade
+Validate extension JSON: API was removed: classes/Viewport/enums/DebugDraw/values/DEBUG_DRAW_SDFGI
+Validate extension JSON: API was removed: classes/Viewport/enums/DebugDraw/values/DEBUG_DRAW_SDFGI_PROBES
+
+Compatibility breakage.
